@@ -16,15 +16,11 @@ First clone the repository:
 git clone git@github.com:StanfordASL/Opt-SSM.git
 cd Opt-SSM
 ```
-Install the required package dependencies:
+Install the required package dependencies using pip:
 ```bash
 pip install -r requirements.txt
 ```
-Finally, install the package:
-```bash
-pip install -e .
-```
-You're good to go!
+And you're good to go!
 
 ## 📘 Usage
 Example usage of the OptSSM class:
