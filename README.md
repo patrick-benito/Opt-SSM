@@ -1,4 +1,4 @@
-# Opt-SSM 🤖 🚀
+# Opt-SSM 🤖🚀
 *A toolbox for learning optimal projections onto spectral submanifolds*
 
 This codebase accompanies the paper **_Taming High-Dimensional Dynamics: Learning Optimal Projections onto Spectral Submanifolds_** ([arXiv:2504.03157](https://arxiv.org/abs/2504.03157))
@@ -10,13 +10,21 @@ This codebase accompanies the paper **_Taming High-Dimensional Dynamics: Learnin
 ## 🛠️ Installation
 
 It is recommended to work in a virtual environment.
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Opt-SSM:
 
+First clone the repository:
+```bash
+git clone git@github.com:StanfordASL/Opt-SSM.git
+cd Opt-SSM
+```
+Install the required package dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-If you have all the packages with the correct versions, you're good to go!
-
+Finally, install the package:
+```bash
+pip install -e .
+```
+You're good to go!
 
 ## 📘 Usage
 Example usage of the OptSSM class:
@@ -30,8 +38,7 @@ opt_ssm = OptSSM(aut_trajs_obs=aut_trajs_obs,
                  SSMOrder=2,
                  ROMOrder=2,
                  N_delay=3,
-                 ts=ts,
-                 verbose=True)
+                 ts=ts)
 ```
 Want to see a complete example? Check out one of the notebooks, e.g. the [slow-fast example](./sim_slow-fast.ipynb).
 
@@ -46,7 +53,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📚 Citation
 ```
-@article{buurmeijere2025optssm,
+@article{buurmeijer2025optssm,
       author = {Buurmeijer, Hugo and Pabon, Luis and Alora, John Irvin and Roshan, Kaundinya and Haller, George and Pavone, Marco},
       title = {Taming High-Dimensional Dynamics: Learning Optimal Projections onto Spectral Submanifolds},
       year = {2025},
