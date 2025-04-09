@@ -1,12 +1,13 @@
 # Opt-SSM 🤖 🚀
 *A toolbox for learning optimal projections onto spectral submanifolds*
 
-This codebase accompanies the paper:  
-**_Taming High-Dimensional Dynamics: Learning Optimal Projections onto Spectral Submanifolds_**
+This codebase accompanies the paper **_Taming High-Dimensional Dynamics: Learning Optimal Projections onto Spectral Submanifolds_** ([arXiv:2504.03157](https://arxiv.org/abs/2504.03157))
 
-![Figure Description](./data/assets/foliation.png)
+<p align="center">
+  <img src="./data/assets/foliation.png" width="500" alt="Optimal projection onto SSM can improve over projecting orthogonally!">
+</p>
 
-## 📦 Installation
+## 🛠️ Installation
 
 It is recommended to work in a virtual environment.
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Opt-SSM:
@@ -14,10 +15,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Opt-SSM
 ```bash
 pip install -r requirements.txt
 ```
-✅ If you have all the packages with the correct versions, you're good to go!
+If you have all the packages with the correct versions, you're good to go!
 
 
-## 🧠 Usage
+## 📘 Usage
 Example usage of the OptSSM class:
 
 ```python
@@ -32,7 +33,7 @@ opt_ssm = OptSSM(aut_trajs_obs=aut_trajs_obs,
                  ts=ts,
                  verbose=True)
 ```
-ℹ️ Want to see a complete example? Check out one of the notebooks, e.g. the [slow-fast example](./sim_slow-fast.ipynb).
+Want to see a complete example? Check out one of the notebooks, e.g. the [slow-fast example](./sim_slow-fast.ipynb).
 
 ## 📄 License
 
