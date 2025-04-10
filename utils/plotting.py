@@ -5,12 +5,10 @@ Custom plotting functions. Choose if you want to use LaTeX for plotting labels v
 LATEX_LABEL = False
 
 import re
-import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 if LATEX_LABEL:
     plt.rcParams['text.usetex'] = True
-from matplotlib.gridspec import GridSpec
 
 
 def plot_trajectories(trajs, ts):
@@ -26,12 +24,12 @@ def plot_trajectories(trajs, ts):
     is_3d = trajs.shape[1] == 3
     
     if is_3d:
-        axs[0].set_ylabel(r'$y_1$')
-        axs[1].set_ylabel(r'$y_2$')
-        axs[2].set_ylabel(r'$y_3$')
+        axs[0].set_ylabel(r'$x_1$')
+        axs[1].set_ylabel(r'$x_2$')
+        axs[2].set_ylabel(r'$x_3$')
     else:
-        axs[0].set_ylabel(r'$y_1$')
-        axs[1].set_ylabel(r'$y_2$')
+        axs[0].set_ylabel(r'$x_1$')
+        axs[1].set_ylabel(r'$x_2$')
 
     for i, traj in enumerate(trajs):
         for j in range(trajs.shape[1]):
@@ -43,77 +41,18 @@ def plot_trajectories(trajs, ts):
         ax = fig.add_subplot(111, projection='3d')
         for i, traj in enumerate(trajs):
             ax.plot(traj[0, :], traj[1, :], traj[2, :], color=colors[i], lw=traj_linewidth)
-        ax.set_xlabel(r'$y_1$')
-        ax.set_ylabel(r'$y_2$')
-        ax.set_zlabel(r'$y_3$')
+        ax.set_xlabel(r'$x_1$')
+        ax.set_ylabel(r'$x_2$')
+        ax.set_zlabel(r'$x_3$')
         set_3D_axes_equal(ax)
     else:
         plt.figure(figsize=(4, 4))
-        plt.xlabel(r'$y_1$')
-        plt.ylabel(r'$y_2$')
+        plt.xlabel(r'$x_1$')
+        plt.ylabel(r'$x_2$')
         for i, traj in enumerate(trajs):
             plt.plot(traj[0, :], traj[1, :], color=colors[i], lw=traj_linewidth)
         plt.axis('equal')
     plt.tight_layout()
-
-
-def plot_trajectories_comparison(trajs_true, trajs_pred, plot_errors=True):
-    """
-    Plot the true and predicted tip positions.
-    """
-    N_traj = len(trajs_true)
-    is_3d = trajs_true.shape[1] == 3
-
-    fig = plt.figure(figsize=(12, 4))
-    gs = GridSpec(2, 3, figure=fig)  # 2 rows, 3 columns grid
-
-    # First subplot for the trajectory plot
-    if is_3d:
-        ax_traj = fig.add_subplot(gs[:, 0], projection='3d')
-        ax_traj.set_xlabel(latex_label('X [m]'))
-        ax_traj.set_ylabel(latex_label('Y [m]'))
-        ax_traj.set_zlabel(latex_label('Z [m]'))
-        for i in range(N_traj):
-            ax_traj.plot(trajs_true[i, 0, :], trajs_true[i, 1, :], trajs_true[i, 2, :], color="#177E89", label=latex_label('True') if i == 0 else "")
-            ax_traj.plot(trajs_pred[i, 0, :], trajs_pred[i, 1, :], trajs_pred[i, 2, :], '--', color='#FF6961', label=latex_label('Predicted') if i == 0 else "")
-        ax_traj.legend()
-        set_3D_axes_equal(ax_traj)
-        # ax_traj.view_init(elev=105, azim=-90, roll=0)
-    else:
-        ax_traj = fig.add_subplot(gs[:, 0])
-        ax_traj.set_xlabel(latex_label('X [m]'))
-        ax_traj.set_ylabel(latex_label('Y [m]'))
-        for i in range(N_traj):
-            ax_traj.plot(trajs_true[i, 0, :], trajs_true[i, 1, :], color="#177E89", label=latex_label('True') if i == 0 else "")
-            ax_traj.plot(trajs_pred[i, 0, :], trajs_pred[i, 1, :], '--', color='#FF6961', label=latex_label('Predicted') if i == 0 else "")
-        ax_traj.legend()
-        ax_traj.axis('equal')
-    plt.tight_layout()
-
-    if plot_errors:
-        colors = [plt.cm.OrRd(i / N_traj) for i in range(N_traj)]
-        
-        ax_hor = fig.add_subplot(gs[0, 1:])
-        e_hor = trajs_pred[:, 0, :] - trajs_true[:, 0, :]
-        for i in range(N_traj):
-            ax_hor.plot(e_hor[i, :], color=colors[i])
-        ax_hor.set_ylabel(latex_label('X error [m]'))
-
-        ax_ver = fig.add_subplot(gs[1, 1:])
-        e_ver = trajs_pred[:, 1, :] - trajs_true[:, 1, :]
-        for i in range(N_traj):
-            ax_ver.plot(e_ver[i, :], color=colors[i])
-        ax_ver.set_ylabel(latex_label('Y error [m]'))
-
-        if is_3d:
-            fig_errors_z = plt.figure(figsize=(6, 4))
-            ax_z = fig_errors_z.add_subplot(111)
-            e_z = trajs_pred[:, 2, :] - trajs_true[:, 2, :]
-            for i in range(N_traj):
-                ax_z.plot(e_z[i, :], color=colors[i])
-            ax_z.set_ylabel(latex_label('Z error [m]'))
-            ax_z.set_xlabel(latex_label('Time [s]'))
-            plt.tight_layout()
 
 
 def plot_mpc_trajectory(ts, z_ref, z_mpc, z_true, u_mpc, N, centers=None, radii=None, plot_controls=True, y_up=False, top_down=False):
@@ -173,7 +112,6 @@ def plot_mpc_trajectory(ts, z_ref, z_mpc, z_true, u_mpc, N, centers=None, radii=
         ax[0].set_xlabel(latex_label('X [m]'))
         ax[0].set_ylabel(latex_label('Y [m]'))
         ax[0].set_zlabel(latex_label('Z [m]'))
-        # ax[0].set_box_aspect([1, 1, 1])
         set_3D_axes_equal(ax[0])
         if y_up:
             ax[0].view_init(elev=115, azim=-115, roll=-25)
@@ -189,53 +127,6 @@ def plot_mpc_trajectory(ts, z_ref, z_mpc, z_true, u_mpc, N, centers=None, radii=
         ax[1].set_ylabel(latex_label('U'))
         ax[1].legend()
     plt.tight_layout()
-
-
-def set_3D_axes_equal(ax):
-    """
-    Make axes of 3D plot have equal scale so that spheres appear as spheres,
-    cubes as cubes, etc.
-    """
-    x_limits = ax.get_xlim3d()
-    y_limits = ax.get_ylim3d()
-    z_limits = ax.get_zlim3d()
-
-    x_range = abs(x_limits[1] - x_limits[0])
-    x_middle = (x_limits[0] + x_limits[1]) / 2
-    y_range = abs(y_limits[1] - y_limits[0])
-    y_middle = (y_limits[0] + y_limits[1]) / 2
-    z_range = abs(z_limits[1] - z_limits[0])
-    z_middle = (z_limits[0] + z_limits[1]) / 2
-
-    # The plot bounding box is a sphere in the sense of the infinity norm, hence radius
-    plot_radius = 0.5*max([x_range, y_range, z_range])
-
-    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
-    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
-    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
-
-
-def latex_label(text):
-    """
-    Converts regular text to a LaTeX-compatible label, handling LaTeX math mode correctly.
-    """
-    # Split text into math ($...$) and non-math segments
-    parts = re.split(r'(\$.+?\$)', text)
-    formatted_parts = []
-
-    for part in parts:
-        if part.startswith('$') and part.endswith('$'):
-            # It's a math mode segment, add it as is
-            formatted_parts.append(part)
-        else:
-            # Replace spaces with ~ and wrap non-math text with \mathrm{}
-            clean_fragment = part.replace(' ', '~')
-            if clean_fragment:
-                latex_command = r"\mathrm{" + clean_fragment + "}"
-                formatted_parts.append(f'${latex_command}$')
-                # formatted_parts.append(f'${r"\mathrm{" + clean_fragment + "}"}$')
-
-    return ''.join(formatted_parts)
 
 
 def plot_slow_fast_results(x_true, x_pred_orth, x_pred_opt):
@@ -298,3 +189,70 @@ def plot_fluid_results(x_true, x_pred_orth, x_pred_opt):
     ax.set_zlabel('$x_3$', fontsize=14, labelpad=-0.5)
     ax.legend(fontsize=12)
     ax.view_init(elev=32.5, azim=-60, roll=0)
+
+
+def plot_trunk_results(z_ref, z_true_orth, z_true_opt, N):
+    """
+    Plot the results for the trunk system.
+    """
+    pastel_blue = "#6FA3EF"
+
+    plt.figure(figsize=(6, 6))
+    plt.plot(z_ref[:-N, 0], z_ref[:-N, 1], linestyle='--', linewidth=2, color='black', label='Reference')
+    plt.plot(z_true_orth[:-N, 0], z_true_orth[:-N, 1], linestyle='-', linewidth=3, color='red', label='Orthogonal')
+    plt.plot(z_true_opt[:-N, 0], z_true_opt[:-N, 1], linestyle='-', linewidth=3, color=pastel_blue, label='Oblique')
+    plt.xlabel(r'$x$ [m]', fontsize=14)
+    plt.ylabel(r'$y$ [m]', fontsize=14)
+    x_ticks = jnp.linspace(-0.2, 0.2, num=5)
+    y_ticks = jnp.linspace(-0.2, 0.2, num=5)
+    plt.xticks(x_ticks, fontsize=14)
+    plt.yticks(y_ticks, fontsize=14)
+    plt.axis('equal')
+    plt.legend(fontsize=14)
+
+
+def set_3D_axes_equal(ax):
+    """
+    Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc.
+    """
+    x_limits = ax.get_xlim3d()
+    y_limits = ax.get_ylim3d()
+    z_limits = ax.get_zlim3d()
+
+    x_range = abs(x_limits[1] - x_limits[0])
+    x_middle = (x_limits[0] + x_limits[1]) / 2
+    y_range = abs(y_limits[1] - y_limits[0])
+    y_middle = (y_limits[0] + y_limits[1]) / 2
+    z_range = abs(z_limits[1] - z_limits[0])
+    z_middle = (z_limits[0] + z_limits[1]) / 2
+
+    # The plot bounding box is a sphere in the sense of the infinity norm, hence radius
+    plot_radius = 0.5*max([x_range, y_range, z_range])
+
+    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
+
+def latex_label(text):
+    """
+    Converts regular text to a LaTeX-compatible label, handling LaTeX math mode correctly.
+    """
+    # Split text into math ($...$) and non-math segments
+    parts = re.split(r'(\$.+?\$)', text)
+    formatted_parts = []
+
+    for part in parts:
+        if part.startswith('$') and part.endswith('$'):
+            # It's a math mode segment, add it as is
+            formatted_parts.append(part)
+        else:
+            # Replace spaces with ~ and wrap non-math text with \mathrm{}
+            clean_fragment = part.replace(' ', '~')
+            if clean_fragment:
+                latex_command = r"\mathrm{" + clean_fragment + "}"
+                formatted_parts.append(f'${latex_command}$')
+                # formatted_parts.append(f'${r"\mathrm{" + clean_fragment + "}"}$')
+
+    return ''.join(formatted_parts)

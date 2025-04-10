@@ -4,7 +4,7 @@
 This codebase accompanies the paper **_Taming High-Dimensional Dynamics: Learning Optimal Projections onto Spectral Submanifolds_** ([arXiv:2504.03157](https://arxiv.org/abs/2504.03157))
 
 <p align="center">
-  <img src="./data/assets/foliation.png" width="500" alt="Optimal projection onto SSM can improve over projecting orthogonally!">
+  <img src="./data/assets/foliation.png" width="500" alt="Optimal projection onto SSMs can improve over projecting orthogonally!">
 </p>
 
 ## 🛠️ Installation

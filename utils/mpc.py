@@ -6,7 +6,6 @@ import jax
 import jax.numpy as jnp
 from time import time
 from tqdm.auto import tqdm
-from .misc import RK4_step
 from .gusto import GuSTO
 
 
@@ -35,7 +34,7 @@ def generate_ref_trajectory(t, type='circle', T=2.5, A=0.1, dim=2):
     return z_ref
 
 
-def run_mpc(system, model, config, z_ref, xf0, U, dU, N_exec = 1, adaptive=False, smoothing_func=None):
+def run_mpc(system, model, config, z_ref, U, dU, N_exec = 1):
     """
     Run MPC and simulate dynamical system.
     """
@@ -47,38 +46,21 @@ def run_mpc(system, model, config, z_ref, xf0, U, dU, N_exec = 1, adaptive=False
     N = config.N                                    # optimization horizon
     N_obs_delay = model.ssm.N_obs_delay             # observed delays
 
-    # Simulate the full system for single timestep to get the initial delay embedding
-    # t_sim = jnp.linspace(0, dt, 2)
-    # xf_sim = system.simulate_autonomous(xf0, t_sim)
-    # y_sim = system.get_positions(xf_sim)[-1, :, :] - system.settled_positions[-1, :, jnp.newaxis]
+    # Reset the simulation
     system.reset()
     
     # y0 = jnp.flip(y_sim, 1).T.flatten()
     y0 = jnp.zeros((N_obs_delay + 1) * n_z)
     x0 = model.encode(y0)
     x = jnp.copy(x0)
-    # xf = jnp.copy(xf_sim[:, -1])
     
     x_mpc = jnp.zeros((len(z_ref), N+1, n_x))
     z_mpc = jnp.zeros((len(z_ref), N+1, n_z))
     u_mpc = jnp.zeros((len(z_ref), N, n_u))
     z_true = jnp.zeros((len(z_ref), n_z))
-    # xf_true = jnp.zeros((len(z_ref), n_xf))
-    
-    # Save estimated parameters over time if applicable
-    if hasattr(model, 'update_parameter_estimate') and adaptive:
-        est_params = jnp.ones(len(z_ref) // model.update_interval) * model.est_param
-        covs_params = jnp.ones(len(z_ref) // model.update_interval) * model.param_cov
-    else:
-        est_params = None
-        covs_params = None
 
-    # Store the initial conditions
-    # x_mpc = x_mpc.at[0].set(jnp.tile(x0, (N+1, 1)))
-    # z_true = z_true.at[:2].set(y_sim.T)
-    # z_mpc = z_mpc.at[0].set(jnp.tile(y_sim[:, 0], (N+1, 1)))
+    # We keep track of delay embeddings
     y = jnp.copy(y0)
-    # xf_true = xf_true.at[:2].set(xf_sim.T)
 
     total_time = time()
     total_control_cost = 0.
@@ -118,31 +100,12 @@ def run_mpc(system, model, config, z_ref, xf0, U, dU, N_exec = 1, adaptive=False
         u_mpc = u_mpc.at[t_idx].set(u_opt)
 
         # Propagate the full state in time with the closed-loop MPC input
-        # xf_new = RK4_step(system.controlled_dynamics, xf, u, dt=dt)
-        
         xf_new = system.step(u_opt[0])
         y_new = system.get_positions(xf_new) - system.settled_positions
-        # y_new = system.get_positions(xf_new)[-1, :] - system.settled_positions[-1, :]
         y = jnp.concatenate([y_new, y[:-n_z]])
-        if smoothing_func is not None:
-            y = smoothing_func(y.reshape(2, n_z).T).T.flatten()  # TODO: the 2 needs updating
-
-        # xf = xf_new
-        # xf_true = xf_true.at[t_idx + 1].set(xf_new)
 
         # Store the true positions
         z_true = z_true.at[t_idx + 1].set(y_new)
-
-        # Update parametric model if necessary
-        if est_params is not None:
-            if t_idx % model.update_interval == 0 and t_idx > 0:
-                x0_interval = x_mpc[t_idx-model.update_interval, 0]
-                us_interval = u_mpc[t_idx-model.update_interval:t_idx, 0]
-                zs_interval = z_true[t_idx-model.update_interval:t_idx]
-                model.update_parameter_estimate(x0_interval, us_interval, zs_interval)
-                model.update_model()
-                est_params = est_params.at[t_idx//model.update_interval].set(model.est_param)
-                covs_params = covs_params.at[t_idx//model.update_interval].set(model.param_cov)
 
         # Update the reduced state with the new observation
         x = model.encode(y)
@@ -154,7 +117,4 @@ def run_mpc(system, model, config, z_ref, xf0, U, dU, N_exec = 1, adaptive=False
     print('Total elapsed time:', total_time, 'seconds')
     print('Total control cost:', total_control_cost)
 
-    # For now no full state is returned
-    xf_true = None
-
-    return x_mpc, z_mpc, u_mpc, z_true, xf_true, est_params, covs_params
+    return x_mpc, z_mpc, u_mpc, z_true
