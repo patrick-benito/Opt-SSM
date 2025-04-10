@@ -20,7 +20,7 @@ Install the required package dependencies using pip:
 ```bash
 pip install -r requirements.txt
 ```
-And you're good to go!
+And you're good to go! Note that SSMLearnPy is currently only compatible with NumPy 1.24.3, so if you have a different version of NumPy installed, you may need to downgrade it.
 
 ## 📘 Usage
 Example usage of the OptSSM class:

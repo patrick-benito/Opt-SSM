@@ -238,7 +238,7 @@ def latex_label(text):
     return ''.join(formatted_parts)
 
 
-def plot_slow_fast_results(x_true, x_pred_ssm, x_pred_opt):
+def plot_slow_fast_results(x_true, x_pred_orth, x_pred_opt):
     """
     Plot the results for the slow-fast system.
     """
@@ -251,12 +251,12 @@ def plot_slow_fast_results(x_true, x_pred_ssm, x_pred_opt):
     plt.figure(figsize=(5, 5))
     plt.plot(x1_critical, x2_critical, color='grey', alpha=0.6, linewidth=2, label=r"", zorder=1)
     plt.scatter(x_true[0, 0], x_true[0, 1], color='black', marker='+', linewidth=3, s=100, label=r'', zorder=2)
-    plt.plot(x_true[:, 0], x_true[:, 1], color='black', linewidth=3, linestyle='--', label=r"True", zorder=4)
-    plt.scatter(x_pred_ssm[0, 0], x_pred_ssm[1, 0], color='red', marker='+', linewidth=3, s=100, label=r'', zorder=3)
-    plt.plot(x_pred_ssm[0, :], x_pred_ssm[1, :], color='red', linewidth=3, label=r"Orthogonal", zorder=5)
-    plt.scatter(x_pred_opt[0, 0], x_pred_opt[1, 0], color=pastel_blue, marker='+', linewidth=3, s=100, label=r'', zorder=3)
-    plt.plot(x_pred_opt[0, :], x_pred_opt[1, :], color=pastel_blue, linewidth=3, label=r"Oblique", zorder=5)
-    plt.scatter(x_true[-1, 0], x_true[-1, 1], color='black', marker='o', s=60, zorder=7)
+    plt.plot(x_true[:, 0], x_true[:, 1], color='black', linewidth=3, linestyle='--', label=r"True", zorder=3)
+    plt.scatter(x_pred_orth[0, 0], x_pred_orth[1, 0], color='red', marker='+', linewidth=3, s=100, label=r'', zorder=4)
+    plt.plot(x_pred_orth[0, :], x_pred_orth[1, :], color='red', linewidth=3, label=r"Orthogonal", zorder=5)
+    plt.scatter(x_pred_opt[0, 0], x_pred_opt[1, 0], color=pastel_blue, marker='+', linewidth=3, s=100, label=r'', zorder=6)
+    plt.plot(x_pred_opt[0, :], x_pred_opt[1, :], color=pastel_blue, linewidth=3, label=r"Oblique", zorder=7)
+    plt.scatter(x_true[-1, 0], x_true[-1, 1], color='black', marker='o', s=60, zorder=8)
 
     plt.xlabel('$x_1$', fontsize=14)
     plt.ylabel('$x_2$', fontsize=14)
@@ -272,5 +272,29 @@ def plot_slow_fast_results(x_true, x_pred_ssm, x_pred_opt):
     plt.gca().set_aspect('equal')
 
 
-def plot_fluid_results():
-    pass
+def plot_fluid_results(x_true, x_pred_orth, x_pred_opt):
+    """
+    Plot the results for the simplified fluid system.
+    """
+    pastel_blue = "#6FA3EF"
+
+    # Critical manifold approx. (in this case, the x3 = x1^2 + x2^2 curve)
+    x1_critical, x2_critical = jnp.linspace(-1.25, 1.25, 100), jnp.linspace(-1.25, 1.25, 100)
+    x1_critical, x2_critical = jnp.meshgrid(x1_critical, x2_critical)
+    x3_critical = x1_critical**2 + x2_critical**2
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(x1_critical, x2_critical, x3_critical, color='grey', alpha=0.25, label=r"", zorder=1)
+    ax.scatter(x_true[0, 0], x_true[0, 1], x_true[0, 2], color='black', marker='+', linewidth=3, s=100, label=r'', zorder=2)
+    ax.plot(x_true[:, 0], x_true[:, 1], x_true[:, 2], color='black', linewidth=2, linestyle='--', label=r"True", zorder=3)
+    ax.scatter(x_pred_orth[0, 0], x_pred_orth[1, 0], x_pred_orth[2, 0], color='red', marker='+', linewidth=3, s=100, label=r'', zorder=4)
+    ax.plot(x_pred_orth[0, :], x_pred_orth[1, :], x_pred_orth[2, :], color='red', linewidth=2, label=r"Orthogonal", zorder=5)
+    ax.scatter(x_pred_opt[0, 0], x_pred_opt[1, 0], x_pred_opt[2, 0], color=pastel_blue, marker='+', linewidth=3, s=100, label=r'', zorder=6)
+    ax.plot(x_pred_opt[0, :], x_pred_opt[1, :], x_pred_opt[2, :], color=pastel_blue, linewidth=2, label=r"Oblique", zorder=7)
+    ax.scatter(0, 0, 0, color='black', marker='o', s=60, label=r'', zorder=8)
+    ax.set_xlabel('$x_1$', fontsize=14)
+    ax.set_ylabel('$x_2$', fontsize=14)
+    ax.set_zlabel('$x_3$', fontsize=14, labelpad=-0.5)
+    ax.legend(fontsize=12)
+    ax.view_init(elev=32.5, azim=-60, roll=0)
