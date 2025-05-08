@@ -427,7 +427,7 @@ class OptSSM:
         Solves the optimization model using IPOPT.
         """
         
-        solver = pyo.SolverFactory('ipopt', executable='/opt/homebrew/bin/ipopt')
+        solver = pyo.SolverFactory('ipopt')
         solver.options['max_iter'] = 500
         solver.options['tol'] = 1e-6
         results = solver.solve(model, tee=verbose)
