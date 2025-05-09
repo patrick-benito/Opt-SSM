@@ -104,7 +104,7 @@ class DynamicalSystem:
 class TrunkConfig:
     num_segments: int = 3
     tip_mass: float = 0.5
-    data_folder: str = "data/trunk"
+    data_folder: str = "../data/trunk"
     duration: int = 10
     render_video: bool = False
     init_steady_state: bool = True

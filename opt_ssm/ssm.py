@@ -11,7 +11,7 @@ from sklearn.utils.extmath import randomized_svd
 from scipy.linalg import orth
 import numpy as np
 import sympy as sp
-from utils.misc import trajectories_delay_embedding, polynomial_features, trajectories_derivatives
+from opt_ssm.misc import trajectories_delay_embedding, polynomial_features, trajectories_derivatives
 import pyomo.environ as pyo
 from itertools import combinations_with_replacement
 import cvxpy as cp
@@ -425,9 +425,13 @@ class OptSSM:
     def _solve_with_ipopt(self, model, verbose=False):
         """
         Solves the optimization model using IPOPT.
-        """
-        
-        solver = pyo.SolverFactory('ipopt', executable='/opt/homebrew/bin/ipopt')
+        """  
+        solver = pyo.SolverFactory('ipopt')
+        if not solver.available():
+            raise RuntimeError(
+                "IPOPT solver is not available. Please install it using "
+                "`conda install -c conda-forge ipopt` and make sure it's on your PATH."
+            )
         solver.options['max_iter'] = 500
         solver.options['tol'] = 1e-6
         results = solver.solve(model, tee=verbose)

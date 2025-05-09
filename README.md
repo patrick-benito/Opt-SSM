@@ -16,11 +16,17 @@ First clone the repository:
 git clone git@github.com:StanfordASL/Opt-SSM.git
 cd Opt-SSM
 ```
-Install the required package dependencies using pip:
+Install the required package dependencies and the package itself in editable mode using pip:
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
 And you're good to go! Note that SSMLearnPy is currently only compatible with NumPy 1.24.3, so if you have a different version of NumPy installed, you may need to downgrade it.
+Additionally, we make use of IPOPT, which has to be installed.
+In case you are using conda, this can be installed using:
+```bash
+conda install conda-forge::ipopt
+```
 
 ## 📘 Usage
 Example usage of the OptSSM class:
@@ -36,7 +42,7 @@ opt_ssm = OptSSM(aut_trajs_obs=aut_trajs_obs,
                  N_delay=3,
                  ts=ts)
 ```
-Want to see a complete example? Check out one of the notebooks, e.g. the [slow-fast example](./sim_slow-fast.ipynb).
+Want to see a complete example? Check out one of the notebooks in the [examples](./examples/) directory, e.g. the [slow-fast example](./examples/slow_fast.ipynb).
 
 ## 📄 License
 

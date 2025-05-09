@@ -6,7 +6,7 @@ import jax
 import jax.numpy as jnp
 from time import time
 from tqdm.auto import tqdm
-from .gusto import GuSTO
+from opt_ssm.gusto import GuSTO
 
 
 def generate_ref_trajectory(t, type='circle', T=2.5, A=0.1, dim=2):

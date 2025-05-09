@@ -6,7 +6,7 @@ import time
 import jax
 import jax.numpy as jnp
 from functools import partial
-from .locp import LOCP
+from opt_ssm.locp import LOCP
 from dataclasses import dataclass, asdict
 
 

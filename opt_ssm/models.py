@@ -6,9 +6,9 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from functools import partial
-from utils.ssm import DelaySSM, OptSSM
-from utils.residual import ResidualBr
-from utils.misc import trajectories_delay_embedding, trajectories_derivatives, RK4_step
+from opt_ssm.ssm import DelaySSM, OptSSM
+from opt_ssm.residual import ResidualBr
+from opt_ssm.misc import trajectories_delay_embedding, trajectories_derivatives, RK4_step
 
 
 class ReducedOrderModel:
