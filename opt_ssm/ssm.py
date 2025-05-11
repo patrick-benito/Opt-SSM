@@ -294,6 +294,7 @@ class OptSSM:
                 ROMOrder: int=None,             # expansion order of reduced dynamics
                 N_delay: int=None,              # number of delays
                 ts=None,                        # time array
+                ipopt_executable=None,          # path to IPOPT executable
                 verbose=False):                 # verbosity
         self.SSMDim = SSMDim
         self.SSMOrder = SSMOrder
@@ -303,7 +304,7 @@ class OptSSM:
         self.t_split = t_split
 
         # Split the data
-        Y_transient, Y_dot_transient, Y_mani, Y_dot_mani, Y_full, Y_dot_full = self._split_data(aut_trajs_obs, ts, t_split)
+        Y_transient, Y_dot_transient, Y_mani, Y_dot_mani = self._split_data(aut_trajs_obs, ts, t_split)
 
         # Do SVD on data close to manifold
         self.V_n_svd, _, _ = randomized_svd(np.asarray(Y_mani), n_components=SSMDim)
@@ -312,7 +313,7 @@ class OptSSM:
         ipopt_model = self._create_optimization_model(np.array(Y_transient), np.array(Y_dot_transient))
 
         # Solve optimization problem
-        self.V_n_opt, _, _ = self._solve_with_ipopt(ipopt_model, verbose=verbose)
+        self.V_n_opt, _, _ = self._solve_with_ipopt(ipopt_model, executable=ipopt_executable, verbose=verbose)
 
         # Regress R on data close to manifold
         self.R_opt = self._regress_reduced_dynamics(Y_mani, Y_dot_mani, verbose=verbose)
@@ -344,14 +345,7 @@ class OptSSM:
         Y_mani = aut_trajs_mani_delay.transpose(1, 0, 2).reshape(p, -1)  # p x N_traj*len(t) := p x N
         Y_dot_mani = trajectories_derivatives(aut_trajs_mani_delay, ts_mani)
         Y_dot_mani = Y_dot_mani.transpose(1, 0, 2).reshape(p, -1)  # p x N_traj*len(t) := p x N
-
-        # Full data
-        aut_trajs_delay = np.array(trajectories_delay_embedding(aut_trajs_obs, self.N_delay, skips=0))
-        p = aut_trajs_delay.shape[1]
-        Y_full = aut_trajs_delay.transpose(1, 0, 2).reshape(p, -1)  # p x N_traj*len(t) := p x N
-        Y_dot_full = trajectories_derivatives(aut_trajs_delay, ts)
-        Y_dot_full = Y_dot_full.transpose(1, 0, 2).reshape(p, -1)  # p x N_traj*len(t) := p x N
-        return Y_transient, Y_dot_transient, Y_mani, Y_dot_mani, Y_full, Y_dot_full
+        return Y_transient, Y_dot_transient, Y_mani, Y_dot_mani
 
     def _create_optimization_model(self, Y, Y_dot, reg=1e-6):
         """
@@ -422,11 +416,14 @@ class OptSSM:
         
         return model
     
-    def _solve_with_ipopt(self, model, verbose=False):
+    def _solve_with_ipopt(self, model, executable=None, verbose=False):
         """
         Solves the optimization model using IPOPT.
-        """  
-        solver = pyo.SolverFactory('ipopt')
+        """
+        if executable is not None:
+            solver = pyo.SolverFactory('ipopt', executable=executable)
+        else:
+            solver = pyo.SolverFactory('ipopt')
         if not solver.available():
             raise RuntimeError(
                 "IPOPT solver is not available. Please install it using "
