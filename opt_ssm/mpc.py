@@ -68,7 +68,7 @@ def run_mpc(system, model, config, z_ref, U, dU, N_exec = 1):
     # Set up GuSTO and run first solve with a simple initial guess
     u_init = jnp.zeros((N, model.n_u))
     x_init = model.rollout(x0, u_init, dt)
-    gusto = GuSTO(model, config, x0, u_init, x_init, z=z_ref[0:N+1], zf=z_ref[N], U=U, dU=dU, solver="GUROBI")
+    gusto = GuSTO(model, config, x0, u_init, x_init, z=z_ref[0:N+1], zf=z_ref[N], U=U, dU=dU, solver="OSQP")
     x_opt, u_opt, z_opt, _ = gusto.get_solution()
 
     for t_idx in tqdm(range(1, len(z_ref) - N)):
