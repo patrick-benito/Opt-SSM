@@ -9,3 +9,5 @@ trunk.xml
 
 # Python
 __pycache__/
+
+*.egg-info
